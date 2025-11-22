@@ -1149,7 +1149,6 @@ def main():
         # Example questions with better design
         st.markdown("---")
         st.markdown("### 💡 Popular Questions")
-        st.markdown("<p style='opacity: 0.7; margin-bottom: 1.5rem;'>Click any question to get started instantly</p>", unsafe_allow_html=True)
         
         examples = [
             ("🗺️", "What is the difference between raster and vector data in GIS?"),
