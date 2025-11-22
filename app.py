@@ -32,6 +32,9 @@ if 'chat_history' not in st.session_state:
 if 'page' not in st.session_state:
     st.session_state.page = 'auth'
 
+if 'show_typing' not in st.session_state:
+    st.session_state.show_typing = False
+
 # Page configuration
 st.set_page_config(
     page_title="GeoAdvisor - AI GIS Assistant",
@@ -40,108 +43,220 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Enhanced Custom CSS
+# Ultra-Enhanced Custom CSS
 st.markdown("""
 <style>
+    /* Import Google Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    
+    /* Global Styles */
+    * {
+        font-family: 'Inter', sans-serif;
+    }
+    
     /* Hide Streamlit branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     
     /* Main container styling */
     .block-container {
-        padding-top: 2rem;
+        padding-top: 1.5rem;
         padding-bottom: 2rem;
+        max-width: 1400px;
     }
     
-    /* Buttons */
+    /* Smooth scrolling */
+    html {
+        scroll-behavior: smooth;
+    }
+    
+    /* Buttons with glassmorphism */
     .stButton>button {
         width: 100%;
-        border-radius: 10px;
-        height: 3em;
+        border-radius: 12px;
+        height: 3.2em;
         font-weight: 600;
-        transition: all 0.3s ease;
+        font-size: 1rem;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        background: linear-gradient(135deg, rgba(33, 150, 243, 0.9) 0%, rgba(76, 175, 80, 0.9) 100%);
+        border: none;
+        color: white;
+        box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stButton>button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.5s;
+    }
+    
+    .stButton>button:hover::before {
+        left: 100%;
     }
     
     .stButton>button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 8px 25px rgba(33, 150, 243, 0.4);
     }
     
-    /* Text inputs */
-    .stTextInput>div>div>input, .stTextArea>div>div>textarea {
-        border-radius: 10px;
-        border: 2px solid #e0e0e0;
+    .stButton>button:active {
+        transform: translateY(-1px);
     }
     
-    /* Hero section */
+    /* Text inputs with modern styling */
+    .stTextInput>div>div>input, 
+    .stTextArea>div>div>textarea {
+        border-radius: 12px;
+        border: 2px solid transparent;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        padding: 0.8rem 1rem;
+        font-size: 1rem;
+    }
+    
+    .stTextInput>div>div>input:focus, 
+    .stTextArea>div>div>textarea:focus {
+        border-color: #2196F3;
+        box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        background: rgba(33, 150, 243, 0.05);
+    }
+    
+    /* Hero section with animated gradient */
     .hero-section {
         text-align: center;
-        padding: 2rem 0;
-        margin-bottom: 2rem;
-        border-radius: 15px;
-        background: linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(76, 175, 80, 0.1) 100%);
+        padding: 3rem 2rem;
+        margin-bottom: 3rem;
+        border-radius: 24px;
+        background: linear-gradient(135deg, rgba(33, 150, 243, 0.15) 0%, rgba(76, 175, 80, 0.15) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(33, 150, 243, 0.1) 0%, transparent 70%);
+        animation: pulse 8s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.1) rotate(180deg); }
     }
     
     .hero-title {
-        font-size: 3rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #2196F3 0%, #4CAF50 100%);
+        font-size: 3.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #2196F3 0%, #4CAF50 50%, #2196F3 100%);
+        background-size: 200% auto;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        animation: gradientShift 3s ease infinite;
         margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+        letter-spacing: -1px;
+    }
+    
+    @keyframes gradientShift {
+        0%, 100% { background-position: 0% center; }
+        50% { background-position: 100% center; }
     }
     
     .hero-subtitle {
-        font-size: 1.2rem;
-        opacity: 0.8;
+        font-size: 1.3rem;
+        opacity: 0.85;
         margin-top: 0;
+        position: relative;
+        z-index: 1;
+        font-weight: 500;
     }
     
-    /* Auth cards */
-    .auth-card {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 2rem;
-        border-radius: 15px;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    /* Floating animation for icons */
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
     }
     
-    /* Chat message styling */
+    .floating-icon {
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    /* Enhanced chat messages */
     .chat-message {
-        padding: 1.2rem;
-        border-radius: 12px;
-        margin-bottom: 1rem;
-        border-left: 4px solid;
-        animation: slideIn 0.3s ease;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        padding: 1.5rem;
+        border-radius: 16px;
+        margin-bottom: 1.2rem;
+        border-left: 5px solid;
+        animation: slideInMessage 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
     }
     
-    @keyframes slideIn {
+    .chat-message::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.05) 100%);
+        pointer-events: none;
+    }
+    
+    @keyframes slideInMessage {
         from {
             opacity: 0;
-            transform: translateY(10px);
+            transform: translateX(-30px);
         }
         to {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateX(0);
         }
     }
     
     .message-role {
         font-weight: 700;
-        font-size: 0.9rem;
-        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+        margin-bottom: 0.8rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
     
     .message-content {
-        line-height: 1.6;
-        font-size: 1rem;
+        line-height: 1.7;
+        font-size: 1.05rem;
+        position: relative;
+        z-index: 1;
     }
     
-    /* Light theme */
+    .message-timestamp {
+        font-size: 0.75rem;
+        opacity: 0.5;
+        margin-top: 0.5rem;
+    }
+    
+    /* Light theme messages */
     @media (prefers-color-scheme: light) {
         .user-message {
             background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
@@ -165,10 +280,10 @@ st.markdown("""
         }
     }
     
-    /* Dark theme */
+    /* Dark theme messages */
     @media (prefers-color-scheme: dark) {
         .user-message {
-            background: linear-gradient(135deg, rgba(33, 150, 243, 0.2) 0%, rgba(33, 150, 243, 0.1) 100%);
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.25) 0%, rgba(33, 150, 243, 0.15) 100%);
             border-left-color: #42A5F5;
         }
         .user-message .message-role {
@@ -178,7 +293,7 @@ st.markdown("""
             color: #BBDEFB;
         }
         .assistant-message {
-            background: linear-gradient(135deg, rgba(76, 175, 80, 0.2) 0%, rgba(76, 175, 80, 0.1) 100%);
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.25) 0%, rgba(76, 175, 80, 0.15) 100%);
             border-left-color: #66BB6A;
         }
         .assistant-message .message-role {
@@ -189,61 +304,148 @@ st.markdown("""
         }
     }
     
-    /* Example questions */
-    .example-question {
-        background: rgba(33, 150, 243, 0.08);
-        border: 2px solid rgba(33, 150, 243, 0.3);
-        border-radius: 10px;
-        padding: 0.8rem 1rem;
-        margin: 0.5rem 0;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-align: left;
-        font-size: 0.95rem;
-    }
-    
-    .example-question:hover {
-        background: rgba(33, 150, 243, 0.15);
-        border-color: rgba(33, 150, 243, 0.6);
-        transform: translateX(5px);
-        box-shadow: 0 4px 12px rgba(33, 150, 243, 0.2);
-    }
-    
-    /* Sidebar styling */
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, rgba(33, 150, 243, 0.05) 0%, rgba(76, 175, 80, 0.05) 100%);
-    }
-    
-    /* Info boxes */
-    .info-box {
-        background: rgba(33, 150, 243, 0.1);
-        border-left: 4px solid #2196F3;
+    /* Typing indicator */
+    .typing-indicator {
+        display: flex;
+        gap: 6px;
         padding: 1rem;
-        border-radius: 8px;
-        margin: 1rem 0;
     }
     
-    /* Stats card */
+    .typing-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #2196F3;
+        animation: typingAnimation 1.4s infinite;
+    }
+    
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    
+    @keyframes typingAnimation {
+        0%, 60%, 100% { transform: translateY(0); opacity: 0.7; }
+        30% { transform: translateY(-10px); opacity: 1; }
+    }
+    
+    /* Enhanced stats card */
     .stats-card {
-        background: linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(76, 175, 80, 0.1) 100%);
-        padding: 1.5rem;
-        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(33, 150, 243, 0.15) 0%, rgba(76, 175, 80, 0.15) 100%);
+        padding: 2rem 1.5rem;
+        border-radius: 16px;
         text-align: center;
-        margin: 0.5rem 0;
+        margin: 0.8rem 0;
         border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-8px) scale(1.05);
+        box-shadow: 0 12px 35px rgba(33, 150, 243, 0.2);
     }
     
     .stats-number {
-        font-size: 2rem;
-        font-weight: 800;
-        color: #2196F3;
+        font-size: 2.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #2196F3 0%, #4CAF50 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.3rem;
     }
     
     .stats-label {
-        font-size: 0.9rem;
-        opacity: 0.7;
+        font-size: 0.95rem;
+        opacity: 0.75;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
+        font-weight: 600;
+    }
+    
+    /* Info box with glassmorphism */
+    .info-box {
+        background: rgba(33, 150, 243, 0.12);
+        border-left: 5px solid #2196F3;
+        padding: 1.2rem;
+        border-radius: 12px;
+        margin: 1rem 0;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Sidebar enhancements */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, rgba(33, 150, 243, 0.08) 0%, rgba(76, 175, 80, 0.08) 100%);
+    }
+    
+    /* Tab styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        border-radius: 12px;
+        padding: 0.8rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    /* Empty state */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        border-radius: 16px;
+        background: linear-gradient(135deg, rgba(33, 150, 243, 0.08) 0%, rgba(76, 175, 80, 0.08) 100%);
+        border: 2px dashed rgba(33, 150, 243, 0.3);
+        margin: 2rem 0;
+    }
+    
+    .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    .empty-state-text {
+        font-size: 1.2rem;
+        opacity: 0.7;
+        margin-top: 1rem;
+    }
+    
+    /* Feature badge */
+    .feature-badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        background: linear-gradient(135deg, rgba(33, 150, 243, 0.2) 0%, rgba(76, 175, 80, 0.2) 100%);
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin: 0.3rem;
+        border: 1px solid rgba(33, 150, 243, 0.3);
+    }
+    
+    /* Scroll to bottom button */
+    .scroll-button {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #2196F3 0%, #4CAF50 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 20px rgba(33, 150, 243, 0.4);
+        transition: all 0.3s ease;
+        z-index: 1000;
+    }
+    
+    .scroll-button:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 30px rgba(33, 150, 243, 0.6);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -305,6 +507,11 @@ def logout_user():
     st.session_state.page = 'auth'
     st.session_state.chat_history = []
 
+def format_timestamp(iso_timestamp):
+    """Format timestamp for display"""
+    dt = datetime.fromisoformat(iso_timestamp)
+    return dt.strftime("%I:%M %p")
+
 def chat_with_geoadvisor(message, model_name, temperature, max_tokens):
     """Main chat function for GeoAdvisor"""
     if not message or message.strip() == "":
@@ -358,11 +565,18 @@ def main():
     # Authentication Page
     if st.session_state.page == 'auth':
         
-        # Hero Section
+        # Hero Section with enhanced animation
         st.markdown("""
         <div class="hero-section">
-            <h1 class="hero-title">🌍 GeoAdvisor</h1>
+            <div class="floating-icon" style="font-size: 4rem; margin-bottom: 1rem;">🌍</div>
+            <h1 class="hero-title">GeoAdvisor</h1>
             <p class="hero-subtitle">Your Intelligent AI Assistant for Geographic Information Systems</p>
+            <div style="margin-top: 1.5rem;">
+                <span class="feature-badge">🗺️ Spatial Analysis</span>
+                <span class="feature-badge">🛰️ Remote Sensing</span>
+                <span class="feature-badge">🐍 Python GIS</span>
+                <span class="feature-badge">📊 Geostatistics</span>
+            </div>
         </div>
         """, unsafe_allow_html=True)
         
@@ -378,12 +592,14 @@ def main():
                 
                 st.markdown("<br>", unsafe_allow_html=True)
                 if st.button("🚀 Login to GeoAdvisor", key="login_btn", type="primary", use_container_width=True):
-                    success, message = login_user(login_username, login_password)
-                    if success:
-                        st.success(message)
-                        st.rerun()
-                    else:
-                        st.error(message)
+                    with st.spinner("🔐 Authenticating..."):
+                        success, message = login_user(login_username, login_password)
+                        if success:
+                            st.success(message)
+                            st.balloons()
+                            st.rerun()
+                        else:
+                            st.error(message)
             
             with tab2:
                 st.markdown("<br>", unsafe_allow_html=True)
@@ -394,61 +610,53 @@ def main():
                 
                 st.markdown("<br>", unsafe_allow_html=True)
                 if st.button("✨ Create Account", key="signup_btn", type="primary", use_container_width=True):
-                    success, message = signup_user(signup_username, signup_password, signup_confirm, signup_email)
-                    if success:
-                        st.success(message)
-                        st.info("👈 Please switch to the Login tab to sign in.")
-                    else:
-                        st.error(message)
+                    with st.spinner("✨ Creating your account..."):
+                        success, message = signup_user(signup_username, signup_password, signup_confirm, signup_email)
+                        if success:
+                            st.success(message)
+                            st.balloons()
+                            st.info("👈 Please switch to the Login tab to sign in.")
+                        else:
+                            st.error(message)
         
-        # Features section
+        # Features section with enhanced cards
         st.markdown("<br><br>", unsafe_allow_html=True)
         st.markdown("### ✨ What Can GeoAdvisor Help You With?")
         
         col1, col2, col3, col4 = st.columns(4)
         
-        with col1:
-            st.markdown("""
-            <div class="stats-card">
-                <div style="font-size: 2.5rem;">🗺️</div>
-                <div class="stats-label">Spatial Analysis</div>
-            </div>
-            """, unsafe_allow_html=True)
+        features = [
+            ("🗺️", "Spatial Analysis", "Advanced geospatial operations"),
+            ("🛰️", "Remote Sensing", "Satellite imagery analysis"),
+            ("🐍", "Python GIS", "GeoPandas & libraries"),
+            ("📊", "Geostatistics", "Spatial statistics")
+        ]
         
-        with col2:
-            st.markdown("""
-            <div class="stats-card">
-                <div style="font-size: 2.5rem;">🛰️</div>
-                <div class="stats-label">Remote Sensing</div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with col3:
-            st.markdown("""
-            <div class="stats-card">
-                <div style="font-size: 2.5rem;">🐍</div>
-                <div class="stats-label">Python GIS</div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with col4:
-            st.markdown("""
-            <div class="stats-card">
-                <div style="font-size: 2.5rem;">📊</div>
-                <div class="stats-label">Geostatistics</div>
-            </div>
-            """, unsafe_allow_html=True)
+        for col, (icon, title, desc) in zip([col1, col2, col3, col4], features):
+            with col:
+                st.markdown(f"""
+                <div class="stats-card">
+                    <div class="floating-icon" style="font-size: 3rem;">{icon}</div>
+                    <div class="stats-label">{title}</div>
+                    <div style="font-size: 0.75rem; opacity: 0.6; margin-top: 0.5rem;">{desc}</div>
+                </div>
+                """, unsafe_allow_html=True)
     
     # Chat Page
     elif st.session_state.page == 'chat':
         
-        # Sidebar
+        # Sidebar with enhanced design
         with st.sidebar:
             st.markdown("### 👤 Account")
             st.markdown(f"""
             <div class="info-box">
-                <strong>Logged in as:</strong><br>
-                <span style="font-size: 1.2rem; color: #2196F3;">@{st.session_state.current_user}</span>
+                <div style="display: flex; align-items: center; gap: 0.8rem;">
+                    <div style="font-size: 2.5rem;">👋</div>
+                    <div>
+                        <div style="font-size: 0.85rem; opacity: 0.7;">Welcome back</div>
+                        <div style="font-size: 1.3rem; font-weight: 700; color: #2196F3;">@{st.session_state.current_user}</div>
+                    </div>
+                </div>
             </div>
             """, unsafe_allow_html=True)
             
@@ -458,14 +666,26 @@ def main():
             
             st.markdown("---")
             
-            # Chat stats
+            # Enhanced chat stats
             st.markdown("### 📊 Session Stats")
-            st.markdown(f"""
-            <div class="stats-card">
-                <div class="stats-number">{len(st.session_state.chat_history)}</div>
-                <div class="stats-label">Messages</div>
-            </div>
-            """, unsafe_allow_html=True)
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown(f"""
+                <div class="stats-card">
+                    <div class="stats-number">{len(st.session_state.chat_history)}</div>
+                    <div class="stats-label">Messages</div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            with col2:
+                total_user_chats = len(st.session_state.user_database.get(st.session_state.current_user, {}).get("chat_history", []))
+                st.markdown(f"""
+                <div class="stats-card">
+                    <div class="stats-number">{total_user_chats}</div>
+                    <div class="stats-label">Total</div>
+                </div>
+                """, unsafe_allow_html=True)
             
             st.markdown("---")
             st.markdown("### ⚙️ Model Settings")
@@ -482,108 +702,52 @@ def main():
                 index=0
             )
             
-            temperature = st.slider("🌡️ Temperature", 0.0, 2.0, 0.7, 0.1)
-            max_tokens = st.slider("📏 Max Tokens", 256, 8192, 2048, 256)
+            temperature = st.slider("🌡️ Temperature", 0.0, 2.0, 0.7, 0.1, help="Controls randomness in responses")
+            max_tokens = st.slider("📏 Max Tokens", 256, 8192, 2048, 256, help="Maximum response length")
             
             st.markdown("---")
             st.markdown("### 📚 GIS Topics")
-            st.markdown("""
-            - 🗺️ Spatial Analysis
-            - 🛰️ Remote Sensing
-            - 🎨 Cartography
-            - 💾 Geodatabases
-            - 🐍 Python GIS
-            - 🌐 Coordinate Systems
-            - 📍 GPS Services
-            - 📐 Projections
-            - 📊 Statistics
-            """)
+            topics = [
+                "🗺️ Spatial Analysis",
+                "🛰️ Remote Sensing",
+                "🎨 Cartography",
+                "💾 Geodatabases",
+                "🐍 Python GIS",
+                "🌐 Coordinate Systems",
+                "📍 GPS Services",
+                "📐 Projections",
+                "📊 Statistics"
+            ]
+            for topic in topics:
+                st.markdown(f"- {topic}")
             
             st.markdown("---")
             if st.button("🗑️ Clear Chat History", use_container_width=True):
                 st.session_state.chat_history = []
                 st.rerun()
         
-        # Main chat area
+        # Main chat area with enhanced header
         st.markdown("""
         <div style="text-align: center; margin-bottom: 2rem;">
-            <h1 style="margin: 0;">🌍 GeoAdvisor Chat</h1>
-            <p style="opacity: 0.7; margin-top: 0.5rem;">Ask anything about GIS, spatial analysis, or geospatial programming</p>
+            <div class="floating-icon" style="font-size: 3rem; margin-bottom: 0.5rem;">🌍</div>
+            <h1 style="margin: 0; font-size: 2.5rem; font-weight: 800;">GeoAdvisor Chat</h1>
+            <p style="opacity: 0.7; margin-top: 0.5rem; font-size: 1.1rem;">Ask anything about GIS, spatial analysis, or geospatial programming</p>
         </div>
         """, unsafe_allow_html=True)
         
-        # Chat container
+        # Chat container with empty state
         chat_container = st.container()
         with chat_container:
             if len(st.session_state.chat_history) == 0:
-                st.info("👋 Welcome! Start by asking a question or click an example below.")
+                st.markdown("""
+                <div class="empty-state">
+                    <div class="empty-state-icon">💬</div>
+                    <h3>Start Your GIS Journey!</h3>
+                    <p class="empty-state-text">Ask a question or select an example below to begin</p>
+                </div>
+                """, unsafe_allow_html=True)
             else:
                 for chat in st.session_state.chat_history:
+                    # User message
                     st.markdown(f"""
-                    <div class="chat-message user-message">
-                        <div class="message-role">👤 You</div>
-                        <div class="message-content">{chat["user"]}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
-                    
-                    st.markdown(f"""
-                    <div class="chat-message assistant-message">
-                        <div class="message-role">🤖 GeoAdvisor</div>
-                        <div class="message-content">{chat["assistant"]}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
-        
-        # Example questions
-        st.markdown("---")
-        st.markdown("### 💡 Example Questions")
-        
-        examples = [
-            "What is the difference between raster and vector data in GIS?",
-            "How do I calculate the area of polygons using GeoPandas?",
-            "Explain coordinate reference systems (CRS) in simple terms",
-            "What are the best practices for creating effective maps?",
-            "How can I perform spatial joins in Python?",
-            "What is the Haversine formula and when should I use it?"
-        ]
-        
-        col1, col2 = st.columns(2)
-        
-        for idx, example in enumerate(examples):
-            with col1 if idx % 2 == 0 else col2:
-                if st.button(f"💬 {example}", key=f"ex_{idx}", use_container_width=True):
-                    st.session_state.example_question = example
-                    st.rerun()
-        
-        st.markdown("---")
-        
-        # Chat input
-        user_input = st.text_area(
-            "✍️ Your Question",
-            placeholder="Type your question here... (e.g., How do I perform a buffer analysis in QGIS?)",
-            key="user_input",
-            value=st.session_state.get('example_question', ''),
-            height=100
-        )
-        
-        if 'example_question' in st.session_state:
-            del st.session_state.example_question
-        
-        if st.button("🚀 Send Message", type="primary", use_container_width=True):
-            if user_input:
-                with st.spinner("🤔 GeoAdvisor is thinking..."):
-                    chat_with_geoadvisor(user_input, model_name, temperature, max_tokens)
-                st.rerun()
-            else:
-                st.warning("⚠️ Please enter a question first!")
-    
-    # Footer
-    st.markdown("---")
-    st.markdown("""
-    <div style="text-align: center; opacity: 0.6; padding: 1rem;">
-        <p>Powered by <strong>Groq AI</strong> | Built with <strong>Streamlit</strong> | Specialized in <strong>GIS</strong></p>
-        <p style="font-size: 0.85rem;">© 2024 GeoAdvisor - Your Intelligent Geospatial Assistant</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-if __name__ == "__main__":
-    main()
+                    <div
