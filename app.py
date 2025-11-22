@@ -256,8 +256,9 @@ st.markdown("""
         margin-top: 0.5rem;
     }
     
-    /* Light theme messages */
+    /* Light theme */
     @media (prefers-color-scheme: light) {
+        /* Messages */
         .user-message {
             background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
             border-left-color: #2196F3;
@@ -278,10 +279,61 @@ st.markdown("""
         .assistant-message .message-content {
             color: #1B5E20;
         }
+        
+        /* Hero section */
+        .hero-section {
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.12) 0%, rgba(76, 175, 80, 0.12) 100%);
+            border: 1px solid rgba(33, 150, 243, 0.2);
+        }
+        
+        /* Stats cards */
+        .stats-card {
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.12) 0%, rgba(76, 175, 80, 0.12) 100%);
+            border: 1px solid rgba(33, 150, 243, 0.15);
+        }
+        
+        /* Info box */
+        .info-box {
+            background: rgba(33, 150, 243, 0.1);
+            border-left-color: #2196F3;
+        }
+        
+        /* Empty state */
+        .empty-state {
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.06) 0%, rgba(76, 175, 80, 0.06) 100%);
+            border-color: rgba(33, 150, 243, 0.25);
+        }
+        
+        /* Feature badges */
+        .feature-badge {
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.15) 0%, rgba(76, 175, 80, 0.15) 100%);
+            border-color: rgba(33, 150, 243, 0.25);
+            color: #1565C0;
+        }
+        
+        /* Text inputs */
+        .stTextInput>div>div>input, 
+        .stTextArea>div>div>textarea {
+            background: rgba(33, 150, 243, 0.03);
+            border-color: rgba(33, 150, 243, 0.2);
+            color: #0D47A1;
+        }
+        
+        .stTextInput>div>div>input:focus, 
+        .stTextArea>div>div>textarea:focus {
+            background: rgba(33, 150, 243, 0.08);
+            border-color: #2196F3;
+        }
+        
+        /* Sidebar */
+        [data-testid="stSidebar"] {
+            background: linear-gradient(180deg, rgba(33, 150, 243, 0.05) 0%, rgba(76, 175, 80, 0.05) 100%);
+        }
     }
     
-    /* Dark theme messages */
+    /* Dark theme */
     @media (prefers-color-scheme: dark) {
+        /* Messages */
         .user-message {
             background: linear-gradient(135deg, rgba(33, 150, 243, 0.25) 0%, rgba(33, 150, 243, 0.15) 100%);
             border-left-color: #42A5F5;
@@ -301,6 +353,56 @@ st.markdown("""
         }
         .assistant-message .message-content {
             color: #C8E6C9;
+        }
+        
+        /* Hero section */
+        .hero-section {
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.15) 0%, rgba(76, 175, 80, 0.15) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Stats cards */
+        .stats-card {
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.15) 0%, rgba(76, 175, 80, 0.15) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Info box */
+        .info-box {
+            background: rgba(33, 150, 243, 0.12);
+            border-left-color: #2196F3;
+        }
+        
+        /* Empty state */
+        .empty-state {
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.08) 0%, rgba(76, 175, 80, 0.08) 100%);
+            border-color: rgba(33, 150, 243, 0.3);
+        }
+        
+        /* Feature badges */
+        .feature-badge {
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.2) 0%, rgba(76, 175, 80, 0.2) 100%);
+            border-color: rgba(33, 150, 243, 0.3);
+            color: #90CAF9;
+        }
+        
+        /* Text inputs */
+        .stTextInput>div>div>input, 
+        .stTextArea>div>div>textarea {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #BBDEFB;
+        }
+        
+        .stTextInput>div>div>input:focus, 
+        .stTextArea>div>div>textarea:focus {
+            background: rgba(33, 150, 243, 0.05);
+            border-color: #42A5F5;
+        }
+        
+        /* Sidebar */
+        [data-testid="stSidebar"] {
+            background: linear-gradient(180deg, rgba(33, 150, 243, 0.08) 0%, rgba(76, 175, 80, 0.08) 100%);
         }
     }
     
