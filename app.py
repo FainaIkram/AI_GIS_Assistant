@@ -750,4 +750,102 @@ def main():
                 for chat in st.session_state.chat_history:
                     # User message
                     st.markdown(f"""
-                    <div
+                    <div class="chat-message user-message">
+                        <div class="message-role">
+                            <span>👤 You</span>
+                            <span class="message-timestamp">{format_timestamp(chat["timestamp"])}</span>
+                        </div>
+                        <div class="message-content">{chat["user"]}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    # Assistant message
+                    st.markdown(f"""
+                    <div class="chat-message assistant-message">
+                        <div class="message-role">
+                            <span>🤖 GeoAdvisor</span>
+                            <span class="message-timestamp">{format_timestamp(chat["timestamp"])}</span>
+                        </div>
+                        <div class="message-content">{chat["assistant"]}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+        
+        # Example questions with better design
+        st.markdown("---")
+        st.markdown("### 💡 Popular Questions")
+        st.markdown("<p style='opacity: 0.7; margin-bottom: 1.5rem;'>Click any question to get started instantly</p>", unsafe_allow_html=True)
+        
+        examples = [
+            ("🗺️", "What is the difference between raster and vector data in GIS?"),
+            ("📐", "How do I calculate the area of polygons using GeoPandas?"),
+            ("🌐", "Explain coordinate reference systems (CRS) in simple terms"),
+            ("🎨", "What are the best practices for creating effective maps?"),
+            ("🔗", "How can I perform spatial joins in Python?"),
+            ("📏", "What is the Haversine formula and when should I use it?")
+        ]
+        
+        col1, col2 = st.columns(2)
+        
+        for idx, (icon, example) in enumerate(examples):
+            with col1 if idx % 2 == 0 else col2:
+                if st.button(f"{icon} {example}", key=f"ex_{idx}", use_container_width=True):
+                    st.session_state.example_question = example
+                    st.rerun()
+        
+        st.markdown("---")
+        
+        # Enhanced chat input area
+        st.markdown("### ✍️ Your Question")
+        user_input = st.text_area(
+            "Type your question here...",
+            placeholder="Example: How do I perform a buffer analysis in QGIS?\n\nTip: Be specific for better answers!",
+            key="user_input",
+            value=st.session_state.get('example_question', ''),
+            height=120,
+            label_visibility="collapsed"
+        )
+        
+        if 'example_question' in st.session_state:
+            del st.session_state.example_question
+        
+        col1, col2, col3 = st.columns([2, 1, 1])
+        
+        with col1:
+            send_button = st.button("🚀 Send Message", type="primary", use_container_width=True)
+        with col2:
+            if st.button("🔄 New Topic", use_container_width=True):
+                st.session_state.chat_history = []
+                st.rerun()
+        with col3:
+            if st.button("📋 Copy Last", use_container_width=True):
+                if st.session_state.chat_history:
+                    st.info("Last response copied to clipboard!")
+        
+        if send_button:
+            if user_input and user_input.strip():
+                with st.spinner("🤔 GeoAdvisor is analyzing your question..."):
+                    chat_with_geoadvisor(user_input, model_name, temperature, max_tokens)
+                st.rerun()
+            else:
+                st.warning("⚠️ Please enter a question first!")
+    
+    # Enhanced footer
+    st.markdown("---")
+    st.markdown("""
+    <div style="text-align: center; padding: 2rem 1rem;">
+        <div style="margin-bottom: 1rem;">
+            <span class="feature-badge">⚡ Powered by Groq AI</span>
+            <span class="feature-badge">🎨 Built with Streamlit</span>
+            <span class="feature-badge">🌍 GIS Specialized</span>
+        </div>
+        <p style="opacity: 0.5; font-size: 0.9rem; margin-top: 1rem;">
+            © 2024 GeoAdvisor - Empowering Geospatial Intelligence
+        </p>
+        <p style="opacity: 0.4; font-size: 0.8rem; margin-top: 0.5rem;">
+            Version 2.0 | Made with ❤️ for the GIS Community
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+if __name__ == "__main__":
+    main()
