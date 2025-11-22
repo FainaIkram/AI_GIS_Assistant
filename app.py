@@ -40,38 +40,84 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS
+# Custom CSS for both light and dark themes
 st.markdown("""
 <style>
     .stButton>button {
         width: 100%;
     }
-    .success-message {
-        padding: 10px;
-        background-color: #d4edda;
-        border: 1px solid #c3e6cb;
-        border-radius: 5px;
-        color: #155724;
-    }
-    .error-message {
-        padding: 10px;
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-        border-radius: 5px;
-        color: #721c24;
-    }
+    
+    /* Chat message styling - works in both themes */
     .chat-message {
-        padding: 10px;
-        border-radius: 5px;
-        margin-bottom: 10px;
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        border-left: 4px solid;
     }
-    .user-message {
-        background-color: #e3f2fd;
-        border-left: 4px solid #2196f3;
+    
+    /* Light theme colors */
+    @media (prefers-color-scheme: light) {
+        .user-message {
+            background-color: #e3f2fd;
+            border-left-color: #2196f3;
+            color: #1565c0;
+        }
+        .assistant-message {
+            background-color: #f1f8e9;
+            border-left-color: #4caf50;
+            color: #2e7d32;
+        }
     }
-    .assistant-message {
-        background-color: #f5f5f5;
-        border-left: 4px solid #4caf50;
+    
+    /* Dark theme colors */
+    @media (prefers-color-scheme: dark) {
+        .user-message {
+            background-color: rgba(33, 150, 243, 0.15);
+            border-left-color: #42a5f5;
+            color: #90caf9;
+        }
+        .assistant-message {
+            background-color: rgba(76, 175, 80, 0.15);
+            border-left-color: #66bb6a;
+            color: #a5d6a7;
+        }
+    }
+    
+    /* Example questions styling */
+    .example-btn {
+        background-color: transparent;
+        border: 2px solid;
+        border-radius: 8px;
+        padding: 10px 16px;
+        margin: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        font-weight: 500;
+    }
+    
+    /* Light theme example buttons */
+    @media (prefers-color-scheme: light) {
+        .example-btn {
+            border-color: #2196f3;
+            color: #1976d2;
+        }
+        .example-btn:hover {
+            background-color: #e3f2fd;
+            transform: translateY(-2px);
+        }
+    }
+    
+    /* Dark theme example buttons */
+    @media (prefers-color-scheme: dark) {
+        .example-btn {
+            border-color: #42a5f5;
+            color: #90caf9;
+        }
+        .example-btn:hover {
+            background-color: rgba(33, 150, 243, 0.15);
+            transform: translateY(-2px);
+        }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -284,26 +330,34 @@ def main():
                 st.markdown(f'<div class="chat-message assistant-message"><strong>GeoAdvisor:</strong> {chat["assistant"]}</div>', unsafe_allow_html=True)
         
         # Example questions
-        st.markdown("### 💡 Example Questions - Click to Use")
-        col1, col2, col3 = st.columns(3)
+        st.markdown("### 💡 Example Questions")
+        
+        examples = [
+            "What is the difference between raster and vector data in GIS?",
+            "How do I calculate the area of polygons using GeoPandas?",
+            "Explain coordinate reference systems (CRS) in simple terms",
+            "What are the best practices for creating effective maps?",
+            "How can I perform spatial joins in Python?",
+            "What is the Haversine formula and when should I use it?"
+        ]
+        
+        col1, col2 = st.columns(2)
         
         with col1:
-            if st.button("Raster vs Vector"):
-                st.session_state.example_question = "What is the difference between raster and vector data in GIS?"
-            if st.button("Spatial Joins"):
-                st.session_state.example_question = "How can I perform spatial joins in Python?"
+            for example in examples[::2]:  # Odd indexed examples
+                if st.markdown(f'<div class="example-btn" onclick="navigator.clipboard.writeText(\'{example}\')">{example}</div>', unsafe_allow_html=True):
+                    pass
+                if st.button(example, key=f"ex_{examples.index(example)}", use_container_width=True):
+                    st.session_state.example_question = example
+                    st.rerun()
         
         with col2:
-            if st.button("Polygon Area"):
-                st.session_state.example_question = "How do I calculate the area of polygons using GeoPandas?"
-            if st.button("Haversine"):
-                st.session_state.example_question = "What is the Haversine formula and when should I use it?"
-        
-        with col3:
-            if st.button("CRS Explained"):
-                st.session_state.example_question = "Explain coordinate reference systems (CRS) in simple terms"
-            if st.button("Map Design"):
-                st.session_state.example_question = "What are the best practices for creating effective maps?"
+            for example in examples[1::2]:  # Even indexed examples
+                if st.markdown(f'<div class="example-btn" onclick="navigator.clipboard.writeText(\'{example}\')">{example}</div>', unsafe_allow_html=True):
+                    pass
+                if st.button(example, key=f"ex_{examples.index(example)}", use_container_width=True):
+                    st.session_state.example_question = example
+                    st.rerun()
         
         # Chat input
         user_input = st.text_area(
