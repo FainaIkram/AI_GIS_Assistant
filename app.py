@@ -1,6 +1,11 @@
 import streamlit as st
 
-api_key = st.secrets["GROQ_API_KEY"]
+try:
+    api_key = st.secrets["GROQ_API_KEY"]
+    st.success("Secret loaded successfully!")
+except KeyError:
+    st.error("Secret not found! Check your Streamlit Secrets.")
+
 
 import gradio as gr
 from groq import Groq
