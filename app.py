@@ -2,6 +2,7 @@ import streamlit as st
 from groq import Groq
 from datetime import datetime
 import json
+import os
 
 # System prompt for GIS expertise
 SYSTEM_PROMPT = """You are GeoAdvisor, an expert AI assistant specializing in Geographic Information Systems (GIS), geospatial analysis, and spatial data science. Your expertise includes:
@@ -19,9 +20,20 @@ SYSTEM_PROMPT = """You are GeoAdvisor, an expert AI assistant specializing in Ge
 
 Provide clear, accurate, and helpful responses. When explaining technical concepts, break them down into understandable terms. If providing code examples, use Python with common GIS libraries."""
 
+# File to store user data
+USER_DATA_FILE = "user_data.json"
+
 # Initialize session state
 if 'user_database' not in st.session_state:
-    st.session_state.user_database = {}
+    # Load user data from file if it exists
+    if os.path.exists(USER_DATA_FILE):
+        try:
+            with open(USER_DATA_FILE, 'r') as f:
+                st.session_state.user_database = json.load(f)
+        except:
+            st.session_state.user_database = {}
+    else:
+        st.session_state.user_database = {}
 
 if 'current_user' not in st.session_state:
     st.session_state.current_user = None
@@ -34,6 +46,17 @@ if 'page' not in st.session_state:
 
 if 'show_typing' not in st.session_state:
     st.session_state.show_typing = False
+
+# Function to save user data to file
+def save_user_data():
+    """Save user database to JSON file"""
+    try:
+        with open(USER_DATA_FILE, 'w') as f:
+            json.dump(st.session_state.user_database, f, indent=2)
+        return True
+    except Exception as e:
+        st.error(f"Error saving user data: {str(e)}")
+        return False
 
 # Page configuration
 st.set_page_config(
@@ -441,9 +464,9 @@ st.markdown("""
             border-color: #2196F3;
         }
         
-        /* Sidebar */
+        /* Sidebar - SOLID BACKGROUND */
         [data-testid="stSidebar"] {
-            background: linear-gradient(180deg, rgba(33, 150, 243, 0.05) 0%, rgba(76, 175, 80, 0.05) 100%);
+            background: linear-gradient(180deg, #E3F2FD 0%, #F1F8E9 100%) !important;
         }
     }
     
@@ -516,9 +539,9 @@ st.markdown("""
             border-color: #42A5F5;
         }
         
-        /* Sidebar */
+        /* Sidebar - SOLID BACKGROUND */
         [data-testid="stSidebar"] {
-            background: linear-gradient(180deg, rgba(33, 150, 243, 0.08) 0%, rgba(76, 175, 80, 0.08) 100%);
+            background: linear-gradient(180deg, #0D47A1 0%, #1B5E20 100%) !important;
         }
     }
     
@@ -643,9 +666,9 @@ st.markdown("""
         }
     }
     
-    /* Sidebar enhancements */
+    /* Sidebar enhancements - REMOVED TRANSPARENT BACKGROUND */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, rgba(33, 150, 243, 0.08) 0%, rgba(76, 175, 80, 0.08) 100%);
+        background: linear-gradient(180deg, #0D47A1 0%, #1B5E20 100%) !important;
     }
     
     /* Mobile sidebar */
@@ -858,7 +881,11 @@ def signup_user(username, password, confirm_password, email):
         "chat_history": []
     }
     
-    return True, f"✅ Account created successfully! Welcome, {username}!"
+    # Save to file
+    if save_user_data():
+        return True, f"✅ Account created successfully! Welcome, {username}!"
+    else:
+        return False, "❌ Error saving account data. Please try again."
 
 def login_user(username, password):
     """Handle user login"""
@@ -931,6 +958,8 @@ def chat_with_geoadvisor(message, model_name, temperature, max_tokens):
                 "assistant": assistant_message,
                 "timestamp": datetime.now().isoformat()
             })
+            # Save to file after each message
+            save_user_data()
         
     except Exception as e:
         st.error(f"❌ **Error:** {str(e)}\n\nPlease check your API key and try again.")
