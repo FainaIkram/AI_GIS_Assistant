@@ -464,7 +464,7 @@ st.markdown("""
             border-color: #2196F3;
         }
         
-        /* Sidebar - SOLID BACKGROUND */
+        /* Sidebar - SOLID BACKGROUND FOR LIGHT MODE */
         [data-testid="stSidebar"] {
             background: linear-gradient(180deg, #E3F2FD 0%, #F1F8E9 100%) !important;
         }
@@ -539,7 +539,7 @@ st.markdown("""
             border-color: #42A5F5;
         }
         
-        /* Sidebar - SOLID BACKGROUND */
+        /* Sidebar - SOLID BACKGROUND FOR DARK MODE */
         [data-testid="stSidebar"] {
             background: linear-gradient(180deg, #0D47A1 0%, #1B5E20 100%) !important;
         }
@@ -666,10 +666,7 @@ st.markdown("""
         }
     }
     
-    /* Sidebar enhancements - REMOVED TRANSPARENT BACKGROUND */
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #0D47A1 0%, #1B5E20 100%) !important;
-    }
+    /* Sidebar enhancements - SOLID BACKGROUND FOR BOTH THEMES */
     
     /* Mobile sidebar */
     @media (max-width: 768px) {
