@@ -1240,7 +1240,7 @@ def main():
             <span class="feature-badge">🌍 GIS Specialized</span>
         </div>
         <p style="opacity: 0.5; font-size: 0.9rem; margin-top: 1rem;">
-            © 2024 GeoAdvisor - Empowering Geospatial Intelligence
+            © 2025 GeoAdvisor - Empowering Geospatial Intelligence
         </p>
         <p style="opacity: 0.4; font-size: 0.8rem; margin-top: 0.5rem;">
             Version 2.0 | Made with ❤️ for the GIS Community
